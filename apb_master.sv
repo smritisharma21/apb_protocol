@@ -12,7 +12,7 @@ module apb_master (
 );
 
     // FSM states
-    typedef enum logic [1:0] {IDLE, SETUP, ENABLE} state_t;
+    typedef enum logic [1:0] {IDLE, SETUP, ACCESS} state_t;
     state_t state, next_state;
 
     // Registers for outputs
@@ -24,7 +24,7 @@ module apb_master (
     assign PADDR   = addr_reg;
     assign PWRITE  = write_reg;
     assign PSEL    = (state != IDLE);
-    assign PENABLE = (state == ENABLE);
+    assign PENABLE = (state == ACCESS);
     assign PWDATA  = data_reg;
 
     // State update
@@ -40,8 +40,8 @@ module apb_master (
         next_state = state;
         case(state)
             IDLE:    next_state = (write_reg !== 1'bx) ? SETUP : IDLE;
-            SETUP:   next_state = ENABLE;
-            ENABLE:  next_state = PREADY ? IDLE : ENABLE;
+            SETUP:   next_state = ACCESS;
+            ACCESS:  next_state = PREADY ? IDLE : ACCESS;
         endcase
     end
 
